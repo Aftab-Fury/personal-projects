@@ -38,7 +38,7 @@ def amazon(search, driver):
 
     count = 0
     for product in products:
-        if count > 2:
+        if count > 3:
             break
 
         final_Product = {}
@@ -78,7 +78,7 @@ def amazon(search, driver):
         mrp_list = []
         try:
             mrp_list = driver.find_elements(By.CSS_SELECTOR,
-                                    value="#apex_desktop div .a-color-secondary .a-text-price ")
+                                            value="#apex_desktop div .a-color-secondary .a-text-price ")
         except Exception as e:
             print(f"Error occured at find element apex_desktop div \n{e.__str__()}")
             continue
@@ -151,20 +151,23 @@ def flipkart(search, driver):
     container = parentcontainer.find_element(By.XPATH, value='//div[@class="_1YokD2 _3Mn1Gg"]')
     all_products = container.find_elements(By.XPATH, value='//div[@class="_13oc-S"]')
     allfk_products = []
+    count = 0
+    while count < 3:
+        for product in all_products:
+            product.click()
+            driver.switch_to.window(driver.window_handles[1])
+            final_Product = {}
+            final_Product = defaultdict(lambda: "", final_Product)
+            final_Product["name"] = WebDriverWait(driver, 5).until(find_fk_name)
+            final_Product["mrp"] = WebDriverWait(driver, 5).until(find_fk_mrp)
+            final_Product["price"] = WebDriverWait(driver, 5).until(find_fk_price)
+            final_Product["source"] = "Flipkart"
+            allfk_products.append(final_Product)
+            driver.close()
+            driver.switch_to.window(driver.window_handles[0])
+            count = count + 1
 
-    for product in all_products[:2]:
-        product.click()
-        driver.switch_to.window(driver.window_handles[1])
-        final_Product = {}
-        final_Product = defaultdict(lambda: "", final_Product)
-        final_Product["name"] = WebDriverWait(driver, 5).until(find_fk_name)
-        final_Product["mrp"] = WebDriverWait(driver, 5).until(find_fk_mrp)
-        final_Product["price"] = WebDriverWait(driver, 5).until(find_fk_price)
-        final_Product["source"] = "Flipkart"
-        allfk_products.append(final_Product)
-        driver.close()
-        driver.switch_to.window(driver.window_handles[0])
-    return allfk_products
+        return allfk_products
 
 
 def main():
