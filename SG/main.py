@@ -8,22 +8,19 @@ import time
 
 
 def website(new_links):
-    print(new_links)
+    # print(new_links)
     x = 0
     final_json_dict = []
     while x < 5:
         all_details = {}
         url = requests.get(new_links[x]).text
         soup = BeautifulSoup(url, "html.parser")
-        all_details["Name:"] = soup.find(attrs={"data-testid": "new-listing-details-page-desktop-text-title"}).text
-        price = soup.find(class_= "D_GJ D_wl D_lh D_wn D_wq D_wt D_wu D_wj").text
-        print(price)
-        all_details["Condition"] = soup.select_one(
-            selector=" div.D_iF > section > div > div > div > div:nth-child(1) > p").text
-        all_details["Courier Type is"] = soup.select_one(
-            selector=" div.D_iF > section > div > div > div > div:nth-child(2) > p").text
-        all_details["Place is"] = soup.select_one(
-            selector=" div.D_iF > section > div > div > div > div:nth-child(3) > p").text
+        all_details["Name:"] = soup.find("p", attrs={"data-testid": "new-listing-details-page-desktop-text-title"}).text
+        all_details["Price:"] = soup.find(name= "div" , class_="D_Xo").text
+        nope = soup.find(name="div", class_="D_hN")
+        print("Condition , Mailing type ,Location is  : ")
+        for things in nope.find_all(name="div", class_= "D_XL"):
+            print(f"{things.text}:")
         try:
             all_details["details"] = soup.select_one(selector="section > div:nth-child(4) > div").text
         except:
@@ -57,19 +54,24 @@ def main():
 
     url = requests.get(base_search).text
     soup = BeautifulSoup(url, "html.parser")
-    products = soup.select(selector="#root > div > div.D_H > div > div.D_R > main > div > div:nth-child(1) > div")
-    count = 1
+    products = soup.select("div.D_Kg.D__")
+    number = 0
     new_links = []
-    for link in products:
-        while count <= 30:
-            try:
-                one_link = link.select_one(selector=f"div:nth-child({count}) > div > div.D_JS > a:nth-child(2)")
-                count = count + 1
-                x = one_link.get("href")
-                links = base + x
-                new_links.append(links)
-            except:
-                pass
+    for product in products:
+        x = product.find_all("div", class_="D_Kb D_LL")
+        for link in x:
+            ahem = link.find_all("a", href=True)
+
+            for god in ahem:
+                if number % 2 != 0:
+                    nr = (god.get("href"))
+                    number = number + 1
+                    links = base + nr
+                    new_links.append(links)
+                else:
+                    number = number + 1
+                    continue
+
     json_string = website(new_links)
     with open("info.json", "w") as outfile:
         outfile.write(json_string)

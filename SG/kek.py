@@ -10,19 +10,20 @@ import time
 def website(new_links):
     x = 0
     final_json_dict = []
-    while x < 19:
+    while x < 1:
         all_details = {}
         url = requests.get(new_links[x]).text
         soup = BeautifulSoup(url, "html.parser")
-        all_details["Name:"] = soup.select_one(
-            selector="#root > div > div.D_iz > div.D_iV > div.D_iW > div:nth-child(1) > div.D_iB > p").text
-        all_details["Price:"] = soup.select_one(selector="div > h2").text
-        all_details["Condition"] = soup.select_one(
-            selector=" div.D_iF > section > div > div > div > div:nth-child(1) > p").text
-        all_details["Courier Type is"] = soup.select_one(
-            selector=" div.D_iF > section > div > div > div > div:nth-child(2) > p").text
-        all_details["Place is"] = soup.select_one(
-            selector=" div.D_iF > section > div > div > div > div:nth-child(3) > p").text
+        name = soup.find(attrs={"data-testid": "new-listing-details-page-desktop-text-title"}).text
+        print(name)
+
+        # all_details["Price:"] = soup.select_one(selector="div > h2").text
+        # all_details["Condition"] = soup.select_one(
+        #     selector=" div.D_iF > section > div > div > div > div:nth-child(1) > p").text
+        # all_details["Courier Type is"] = soup.select_one(
+        #     selector=" div.D_iF > section > div > div > div > div:nth-child(2) > p").text
+        # all_details["Place is"] = soup.select_one(
+        #     selector=" div.D_iF > section > div > div > div > div:nth-child(3) > p").text
         try:
             all_details["details"] = soup.select_one(selector="section > div:nth-child(4) > div").text
         except:
@@ -45,7 +46,7 @@ def website(new_links):
             pass
         x = x + 1
         final_json_dict.append(all_details)
-        time.sleep(2)
+        # time.sleep(2)
     return json.dumps(final_json_dict, indent=4)
 
 
@@ -56,13 +57,15 @@ def main():
 
     url = requests.get(base_search).text
     soup = BeautifulSoup(url, "html.parser")
-    products = soup.select(selector="#root > div > div.D_H > div > div.D_R > main > div > div:nth-child(1) > div")
+    products = soup.select(selector="main > div > div:nth-child(1) > div")
+    # root > div > div.D_j > div > div.D_t > main > div > div:nth-child(1) > div
     count = 1
     new_links = []
     for link in products:
         while count <= 30:
             try:
-                one_link = link.select_one(selector=f"div:nth-child({count}) > div > div.D_JS > a:nth-child(2)")
+                one_link = link.select_one(selector=f"div:nth-child({count}) > div > div.D_LR > a:nth-child(2)")
+                # root > div > div.D_j > div > div.D_t > main > div > div:nth-child(1) > div > div:nth-child(6) > div > div.D_LR > a:nth-child(2)
                 count = count + 1
                 x = one_link.get("href")
                 links = base + x
