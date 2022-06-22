@@ -8,42 +8,45 @@ import time
 
 
 def website(new_links):
-    # print(new_links)
+    kk = len(new_links)
     x = 0
     final_json_dict = []
-    while x < 5:
+    while x < kk:
         all_details = {}
         url = requests.get(new_links[x]).text
         soup = BeautifulSoup(url, "html.parser")
-        all_details["Name:"] = soup.find("p", attrs={"data-testid": "new-listing-details-page-desktop-text-title"}).text
-        all_details["Price:"] = soup.find(name= "div" , class_="D_Xo").text
+        all_details["Name :"] = soup.find("p", attrs={"data-testid": "new-listing-details-page-desktop-text-title"}).text
+        all_details["Price :"] = soup.find(name= "div" , class_="D_Xo").text
         nope = soup.find(name="div", class_="D_hN")
-        print("Condition , Mailing type ,Location is  : ")
-        for things in nope.find_all(name="div", class_= "D_XL"):
-            print(f"{things.text}:")
+        all_details["Condition :"] = nope.find_all(name="div", class_= "D_XL")[0].text
+        # print(f"Condition is : {condition}:")
+        all_details["Courier type :"] = nope.find_all(name="div", class_= "D_XL")[1].text
+        # print(f"Courier Type is :{courier_type}:")
+        all_details["Location :"] = nope.find_all(name="div", class_= "D_XL")[2].text
+        # print(f"Location of product is : {location}:")
         try:
-            all_details["details"] = soup.select_one(selector="section > div:nth-child(4) > div").text
+            all_details["details"] = soup.find(selector="section div:nth-child(4) div").text
         except:
-            print("details are not available")
+            # print("details are not available")
             pass
         try:
-            all_details["reports"] = soup.select_one(selector="section > div:nth-child(5) > div").text
+            all_details["reports"] = soup.select_one(selector="section div:nth-child(5) div").text
         except:
-            print("condition report not available")
+            # print("condition report not available")
             pass
         try:
-            all_details["Description"] = soup.select_one(selector="section > div:nth-child(7)").text
+            all_details["Description"] = soup.select_one(selector="section div:nth-child(7)").text
         except:
-            print("description is not availabe")
+            # print("description is not availabe")
             pass
         try:
-            all_details["other details "] = soup.select_one(selector="section > div:nth-child(8) > div").text
+            all_details["other details "] = soup.select_one(selector="section div:nth-child(8) div").text
         except:
-            print("other details not available")
+            # print("other details not available")
             pass
         x = x + 1
         final_json_dict.append(all_details)
-        time.sleep(2)
+        # time.sleep(2)
     return json.dumps(final_json_dict, indent=4)
 
 
@@ -73,7 +76,7 @@ def main():
                     continue
 
     json_string = website(new_links)
-    with open("info.json", "w") as outfile:
+    with open("updated_json.json", "w") as outfile:
         outfile.write(json_string)
     return
 
